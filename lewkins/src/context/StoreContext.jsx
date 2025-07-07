@@ -16,11 +16,20 @@ function reducer(state, action) {
   switch (action.type) {
     case 'CART_ADD_ITEM': {
       const newItem = action.payload;
-      const existItem = state.cart.cartItems.find((item) => item.id === newItem.id);
+      const existItem = state.cart.cartItems.find((item) => 
+        item.id === newItem.id && 
+        item.size === newItem.size && 
+        item.color === newItem.color
+      );
+      
       let cartItems;
       if (existItem) {
         cartItems = state.cart.cartItems.map((item) =>
-          item.id === existItem.id ? newItem : item
+          item.id === existItem.id && 
+          item.size === existItem.size && 
+          item.color === existItem.color
+            ? { ...item, quantity: item.quantity + newItem.quantity }
+            : item
         );
       } else {
         cartItems = [...state.cart.cartItems, newItem];
@@ -28,7 +37,12 @@ function reducer(state, action) {
       return { ...state, cart: { ...state.cart, cartItems } };
     }
     case 'CART_REMOVE_ITEM': {
-      const cartItems = state.cart.cartItems.filter((item) => item.id !== action.payload.id);
+      const itemToRemove = action.payload;
+      const cartItems = state.cart.cartItems.filter((item) => 
+        !(item.id === itemToRemove.id && 
+          item.size === itemToRemove.size && 
+          item.color === itemToRemove.color)
+      );
       return { ...state, cart: { ...state.cart, cartItems } };
     }
     case 'CART_CLEAR': {

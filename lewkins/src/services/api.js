@@ -3,44 +3,72 @@ const mockProducts = [
   {
     id: 1,
     name: "Classic White T-Shirt",
-    price: 29.99,
+    price: 25.99,
+    category: "T-Shirts",
     image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg",
-    description: "A comfortable and stylish white t-shirt made from premium cotton. Perfect for casual wear and easy to pair with any outfit."
+    description: "A comfortable and stylish white t-shirt made from 100% cotton.",
+    colors: ["White", "Black", "Gray"],
+    sizes: ["XS", "S", "M", "L", "XL"]
   },
   {
     id: 2,
     name: "Denim Jacket",
-    price: 89.99,
+    price: 79.99,
+    category: "Jackets",
     image: "https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg",
-    description: "Classic denim jacket with a modern fit. Durable and versatile, perfect for layering in any season."
+    description: "A trendy denim jacket perfect for casual outings.",
+    colors: ["Blue", "Black"],
+    sizes: ["S", "M", "L", "XL"]
   },
   {
     id: 3,
-    name: "Black Sneakers",
-    price: 79.99,
-    image: "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg",
-    description: "Comfortable black sneakers with excellent support. Ideal for daily wear and light athletic activities."
+    name: "Summer Dress",
+    price: 45.99,
+    category: "Dresses",
+    image: "https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg",
+    description: "A beautiful summer dress for warm weather.",
+    colors: ["Red", "Blue", "Yellow"],
+    sizes: ["XS", "S", "M", "L"]
   },
   {
     id: 4,
-    name: "Summer Dress",
+    name: "Casual Jeans",
     price: 59.99,
-    image: "https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg",
-    description: "Light and airy summer dress perfect for warm weather. Features a flattering silhouette and breathable fabric."
+    category: "Jeans",
+    image: "https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg",
+    description: "Comfortable casual jeans for everyday wear.",
+    colors: ["Blue", "Black"],
+    sizes: ["28", "30", "32", "34", "36"]
   },
   {
     id: 5,
-    name: "Leather Wallet",
-    price: 45.99,
-    image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg",
-    description: "Premium leather wallet with multiple card slots and bill compartments. Compact yet spacious design."
+    name: "Black Sneakers",
+    price: 79.99,
+    category: "Shoes",
+    image: "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg",
+    description: "Comfortable black sneakers with excellent support. Ideal for daily wear and light athletic activities.",
+    colors: ["Black", "White", "Gray"],
+    sizes: ["7", "8", "9", "10", "11", "12"]
   },
   {
     id: 6,
+    name: "Leather Wallet",
+    price: 45.99,
+    category: "Accessories",
+    image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg",
+    description: "Premium leather wallet with multiple card slots and bill compartments. Compact yet spacious design.",
+    colors: ["Brown", "Black"],
+    sizes: ["One Size"]
+  },
+  {
+    id: 7,
     name: "Wool Sweater",
     price: 69.99,
+    category: "Sweaters",
     image: "https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg",
-    description: "Cozy wool sweater perfect for cold weather. Soft texture and classic design that never goes out of style."
+    description: "Cozy wool sweater perfect for cold weather. Soft texture and classic design that never goes out of style.",
+    colors: ["Navy", "Gray", "Burgundy"],
+    sizes: ["S", "M", "L", "XL"]
   }
 ];
 

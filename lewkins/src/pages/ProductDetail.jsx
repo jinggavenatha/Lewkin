@@ -10,74 +10,192 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchProduct() {
-      const data = await getProductById(id);
-      setProduct(data);
-      if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);
-      if (data.colors && data.colors.length > 0) setSelectedColor(data.colors[0]);
-    }
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const data = await getProductById(id);
+        setProduct(data);
+        if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);
+        if (data.colors && data.colors.length > 0) setSelectedColor(data.colors[0]);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchProduct();
   }, [id]);
 
   const addToCart = () => {
-    if (!selectedSize || !selectedColor) {
-      alert('Please select size and color');
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      alert('Silakan pilih ukuran');
+      return;
+    }
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+      alert('Silakan pilih warna');
       return;
     }
     dispatch({
       type: 'CART_ADD_ITEM',
-      payload: { ...product, size: selectedSize, color: selectedColor, quantity },
+      payload: { 
+        ...product, 
+        size: selectedSize, 
+        color: selectedColor, 
+        quantity 
+      },
     });
+    alert('Produk berhasil ditambahkan ke keranjang!');
   };
 
-  if (!product) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-xl">Memuat produk...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-xl text-red-600">Error: {error}</div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-xl">Produk tidak ditemukan</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="flex flex-col md:flex-row space-x-0 md:space-x-8">
-        <img src={product.image} alt={product.name} className="w-full md:w-1/2 object-cover" />
-        <div className="mt-4 md:mt-0 md:flex-grow">
-          <h1 className="text-3xl font-semibold mb-2">{product.name}</h1>
-          <p className="text-gray-700 mb-4">${product.price.toFixed(2)}</p>
-          <p className="mb-4">{product.description}</p>
-          <div className="mb-4">
-            <label className="block font-semibold mb-1">Size</label>
-            <select
-              value={selectedSize}
-              onChange={(e) => setSelectedSize(e.target.value)}
-              className="input-field"
-            >
-              {product.sizes.map((size) => (
-                <option key={size} value={size}>{size}</option>
-              ))}
-            </select>
+    <div className="max-w-6xl mx-auto p-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Product Image */}
+        <div className="aspect-square overflow-hidden rounded-lg">
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+          />
+        </div>
+        
+        {/* Product Details */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+            <p className="text-2xl font-semibold text-gray-900 mb-4">${product.price.toFixed(2)}</p>
+            {product.category && (
+              <span className="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
+                {product.category}
+              </span>
+            )}
           </div>
-          <div className="mb-4">
-            <label className="block font-semibold mb-1">Color</label>
-            <select
-              value={selectedColor}
-              onChange={(e) => setSelectedColor(e.target.value)}
-              className="input-field"
-            >
-              {product.colors.map((color) => (
-                <option key={color} value={color}>{color}</option>
-              ))}
-            </select>
+          
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Deskripsi</h3>
+            <p className="text-gray-700 leading-relaxed">{product.description}</p>
           </div>
-          <div className="mb-4">
-            <label className="block font-semibold mb-1">Quantity</label>
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="input-field w-24"
-            />
+
+          {/* Size Selection */}
+          {product.sizes && product.sizes.length > 0 && (
+            <div>
+              <label className="block text-lg font-semibold mb-3">Ukuran</label>
+              <div className="grid grid-cols-4 gap-3">
+                {product.sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`
+                      relative py-3 px-4 border-2 rounded-lg font-medium text-center transition-all duration-200 hover:border-gray-900
+                      ${selectedSize === size 
+                        ? 'border-gray-900 bg-gray-900 text-white' 
+                        : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    {size}
+                    {selectedSize === size && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-gray-900 rounded-full flex items-center justify-center">
+                        <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Color Selection */}
+          {product.colors && product.colors.length > 0 && (
+            <div>
+              <label className="block text-lg font-semibold mb-3">Warna</label>
+              <div className="flex flex-wrap gap-3">
+                {product.colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`
+                      relative py-2 px-4 border-2 rounded-full font-medium text-sm transition-all duration-200 hover:border-gray-900 min-w-[80px]
+                      ${selectedColor === color 
+                        ? 'border-gray-900 bg-gray-900 text-white' 
+                        : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    {color}
+                    {selectedColor === color && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-gray-900 rounded-full flex items-center justify-center">
+                        <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quantity Selection */}
+          <div>
+            <label className="block text-lg font-semibold mb-3">Jumlah</label>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                </svg>
+              </button>
+              <span className="w-12 text-center font-semibold text-lg">{quantity}</span>
+              <button
+                onClick={() => setQuantity(Math.min(10, quantity + 1))}
+                className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+            </div>
           </div>
-          <button onClick={addToCart} className="btn-primary">
-            Add to Cart
+
+          {/* Add to Cart Button */}
+          <button 
+            onClick={addToCart} 
+            className="w-full bg-gray-900 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-black transition-colors duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          >
+            Tambah ke Keranjang
           </button>
         </div>
       </div>
