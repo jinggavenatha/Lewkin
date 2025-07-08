@@ -9,6 +9,7 @@ export default function AdminDashboard() {
     name: '',
     price: '',
     description: '',
+    category: '',
     sizes: '',
     colors: '',
     image: '',
@@ -32,6 +33,7 @@ export default function AdminDashboard() {
       name: product.name,
       price: product.price,
       description: product.description,
+      category: product.category,
       sizes: product.sizes.join(','),
       colors: product.colors.join(','),
       image: product.image,
@@ -44,6 +46,7 @@ export default function AdminDashboard() {
       name: '',
       price: '',
       description: '',
+      category: '',
       sizes: '',
       colors: '',
       image: '',
@@ -56,6 +59,7 @@ export default function AdminDashboard() {
       name: formData.name,
       price: parseFloat(formData.price),
       description: formData.description,
+      category: formData.category,
       sizes: formData.sizes.split(',').map((s) => s.trim()),
       colors: formData.colors.split(',').map((c) => c.trim()),
       image: formData.image,
@@ -116,6 +120,16 @@ export default function AdminDashboard() {
           />
         </div>
         <div>
+          <label className="block font-semibold mb-1">Category</label>
+          <input
+            name="category"
+            value={formData.category}
+            onChange={handleInputChange}
+            className="input-field w-full"
+            required
+          />
+        </div>
+        <div>
           <label className="block font-semibold mb-1">Sizes (comma separated)</label>
           <input
             name="sizes"
@@ -160,6 +174,7 @@ export default function AdminDashboard() {
             <tr>
               <th className="border border-gray-300 p-2">Name</th>
               <th className="border border-gray-300 p-2">Price</th>
+              <th className="border border-gray-300 p-2">Category</th>
               <th className="border border-gray-300 p-2">Actions</th>
             </tr>
           </thead>
@@ -168,6 +183,7 @@ export default function AdminDashboard() {
               <tr key={product.id}>
                 <td className="border border-gray-300 p-2">{product.name}</td>
                 <td className="border border-gray-300 p-2">${product.price.toFixed(2)}</td>
+                <td className="border border-gray-300 p-2">{product.category}</td>
                 <td className="border border-gray-300 p-2">
                   <div className="flex flex-wrap gap-2">
                     <Link
