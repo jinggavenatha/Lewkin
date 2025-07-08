@@ -26,7 +26,7 @@ export default function Wishlist() {
                 <Link to={`/products/${item.id}`} className="text-lg font-semibold text-black">
                   {item.name}
                 </Link>
-                <p className="text-gray-600">Price: ${item.price.toFixed(2)}</p>
+                <p className="text-gray-600">Price: ${typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price || 0).toFixed(2)}</p>
               </div>
               <button
                 onClick={() => removeFromWishlist(item)}

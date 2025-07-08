@@ -1,145 +1,77 @@
-// Mock data for demonstration - replace with real API endpoints
-const mockProducts = [
-  {
-    id: 1,
-    name: "Classic White T-Shirt",
-    price: 25.99,
-    category: "T-Shirts",
-    image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg",
-    description: "A comfortable and stylish white t-shirt made from 100% cotton.",
-    colors: ["White", "Black", "Gray"],
-    sizes: ["XS", "S", "M", "L", "XL"]
-  },
-  {
-    id: 2,
-    name: "Denim Jacket",
-    price: 79.99,
-    category: "Jackets",
-    image: "https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg",
-    description: "A trendy denim jacket perfect for casual outings.",
-    colors: ["Blue", "Black"],
-    sizes: ["S", "M", "L", "XL"]
-  },
-  {
-    id: 3,
-    name: "Summer Dress",
-    price: 45.99,
-    category: "Dresses",
-    image: "https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg",
-    description: "A beautiful summer dress for warm weather.",
-    colors: ["Red", "Blue", "Yellow"],
-    sizes: ["XS", "S", "M", "L"]
-  },
-  {
-    id: 4,
-    name: "Casual Jeans",
-    price: 59.99,
-    category: "Jeans",
-    image: "https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg",
-    description: "Comfortable casual jeans for everyday wear.",
-    colors: ["Blue", "Black"],
-    sizes: ["28", "30", "32", "34", "36"]
-  },
-  {
-    id: 5,
-    name: "Black Sneakers",
-    price: 79.99,
-    category: "Shoes",
-    image: "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg",
-    description: "Comfortable black sneakers with excellent support. Ideal for daily wear and light athletic activities.",
-    colors: ["Black", "White", "Gray"],
-    sizes: ["7", "8", "9", "10", "11", "12"]
-  },
-  {
-    id: 6,
-    name: "Leather Wallet",
-    price: 45.99,
-    category: "Accessories",
-    image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg",
-    description: "Premium leather wallet with multiple card slots and bill compartments. Compact yet spacious design.",
-    colors: ["Brown", "Black"],
-    sizes: ["One Size"]
-  },
-  {
-    id: 7,
-    name: "Wool Sweater",
-    price: 69.99,
-    category: "Sweaters",
-    image: "https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg",
-    description: "Cozy wool sweater perfect for cold weather. Soft texture and classic design that never goes out of style.",
-    colors: ["Navy", "Gray", "Burgundy"],
-    sizes: ["S", "M", "L", "XL"]
-  }
-];
+// API Configuration
+const API_BASE_URL = 'http://localhost:5001/api';
 
-// Simulate API delay
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-export async function getProducts() {
+// Helper function for API calls
+const apiRequest = async (endpoint, options = {}) => {
   try {
-    await delay(500); // Simulate network delay
-    return mockProducts;
+    const url = `${API_BASE_URL}${endpoint}`;
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    const response = await fetch(url, config);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'API request failed');
+    }
+
+    return data.data; // Return the data property from response
   } catch (error) {
-    console.error('Error in getProducts:', error);
-    throw new Error('Failed to fetch products');
+    console.error(`API Error (${endpoint}):`, error);
+    throw error;
   }
+};
+
+// Product API functions
+export async function getProducts() {
+  return await apiRequest('/products');
 }
 
 export async function getProductById(id) {
-  try {
-    await delay(300); // Simulate network delay
-    const product = mockProducts.find(p => p.id === parseInt(id));
-    if (!product) {
-      throw new Error('Product not found');
-    }
-    return product;
-  } catch (error) {
-    console.error('Error in getProductById:', error);
-    throw error;
-  }
+  return await apiRequest(`/products/${id}`);
+}
+
+export async function getProductsByCategory(category) {
+  return await apiRequest(`/products/category/${category}`);
+}
+
+export async function searchProducts(query) {
+  return await apiRequest(`/products/search?q=${encodeURIComponent(query)}`);
 }
 
 export async function addProduct(product) {
-  try {
-    await delay(500);
-    const newProduct = {
-      ...product,
-      id: Math.max(...mockProducts.map(p => p.id)) + 1
-    };
-    mockProducts.push(newProduct);
-    return newProduct;
-  } catch (error) {
-    console.error('Error in addProduct:', error);
-    throw new Error('Failed to add product');
-  }
+  return await apiRequest('/products', {
+    method: 'POST',
+    body: JSON.stringify(product),
+  });
 }
 
 export async function updateProduct(id, updatedProduct) {
-  try {
-    await delay(500);
-    const index = mockProducts.findIndex(p => p.id === parseInt(id));
-    if (index === -1) {
-      throw new Error('Product not found');
-    }
-    mockProducts[index] = { ...mockProducts[index], ...updatedProduct };
-    return mockProducts[index];
-  } catch (error) {
-    console.error('Error in updateProduct:', error);
-    throw error;
-  }
+  return await apiRequest(`/products/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updatedProduct),
+  });
 }
 
 export async function deleteProduct(id) {
+  return await apiRequest(`/products/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// Health check functions
+export async function testConnection() {
   try {
-    await delay(500);
-    const index = mockProducts.findIndex(p => p.id === parseInt(id));
-    if (index === -1) {
-      throw new Error('Product not found');
-    }
-    const deletedProduct = mockProducts.splice(index, 1)[0];
-    return deletedProduct;
+    const response = await fetch(`${API_BASE_URL}/test`);
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error('Error in deleteProduct:', error);
+    console.error('Backend connection failed:', error);
     throw error;
   }
 }

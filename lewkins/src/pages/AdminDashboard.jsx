@@ -8,10 +8,12 @@ export default function AdminDashboard() {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
+    category: '',
     description: '',
     sizes: '',
     colors: '',
     image: '',
+    stock: '',
   });
 
   useEffect(() => {
@@ -31,10 +33,12 @@ export default function AdminDashboard() {
     setFormData({
       name: product.name,
       price: product.price,
+      category: product.category,
       description: product.description,
-      sizes: product.sizes.join(','),
-      colors: product.colors.join(','),
+      sizes: Array.isArray(product.sizes) ? product.sizes.join(',') : '',
+      colors: Array.isArray(product.colors) ? product.colors.join(',') : '',
       image: product.image,
+      stock: product.stock || 0,
     });
   };
 
@@ -43,10 +47,12 @@ export default function AdminDashboard() {
     setFormData({
       name: '',
       price: '',
+      category: '',
       description: '',
       sizes: '',
       colors: '',
       image: '',
+      stock: '',
     });
   };
 
@@ -55,10 +61,12 @@ export default function AdminDashboard() {
     const productData = {
       name: formData.name,
       price: parseFloat(formData.price),
+      category: formData.category,
       description: formData.description,
-      sizes: formData.sizes.split(',').map((s) => s.trim()),
-      colors: formData.colors.split(',').map((c) => c.trim()),
+      sizes: formData.sizes ? formData.sizes.split(',').map((s) => s.trim()).filter(s => s) : [],
+      colors: formData.colors ? formData.colors.split(',').map((c) => c.trim()).filter(c => c) : [],
       image: formData.image,
+      stock: parseInt(formData.stock) || 0,
     };
     if (editingProduct) {
       await updateProduct(editingProduct.id, productData);
@@ -105,6 +113,17 @@ export default function AdminDashboard() {
           />
         </div>
         <div>
+          <label className="block font-semibold mb-1">Category</label>
+          <input
+            name="category"
+            value={formData.category}
+            onChange={handleInputChange}
+            className="input-field w-full"
+            placeholder="e.g., T-Shirts, Jeans, Shoes"
+            required
+          />
+        </div>
+        <div>
           <label className="block font-semibold mb-1">Description</label>
           <textarea
             name="description"
@@ -140,6 +159,19 @@ export default function AdminDashboard() {
             value={formData.image}
             onChange={handleInputChange}
             className="input-field w-full"
+            placeholder="https://example.com/image.jpg"
+          />
+        </div>
+        <div>
+          <label className="block font-semibold mb-1">Stock</label>
+          <input
+            name="stock"
+            type="number"
+            min="0"
+            value={formData.stock}
+            onChange={handleInputChange}
+            className="input-field w-full"
+            placeholder="0"
           />
         </div>
         <div className="flex space-x-4">
@@ -159,7 +191,9 @@ export default function AdminDashboard() {
           <thead>
             <tr>
               <th className="border border-gray-300 p-2">Name</th>
+              <th className="border border-gray-300 p-2">Category</th>
               <th className="border border-gray-300 p-2">Price</th>
+              <th className="border border-gray-300 p-2">Stock</th>
               <th className="border border-gray-300 p-2">Actions</th>
             </tr>
           </thead>
@@ -167,7 +201,9 @@ export default function AdminDashboard() {
             {products.map((product) => (
               <tr key={product.id}>
                 <td className="border border-gray-300 p-2">{product.name}</td>
-                <td className="border border-gray-300 p-2">${product.price.toFixed(2)}</td>
+                <td className="border border-gray-300 p-2">{product.category}</td>
+                <td className="border border-gray-300 p-2">${typeof product.price === 'number' ? product.price.toFixed(2) : parseFloat(product.price || 0).toFixed(2)}</td>
+                <td className="border border-gray-300 p-2">{product.stock || 0}</td>
                 <td className="border border-gray-300 p-2">
                   <div className="flex flex-wrap gap-2">
                     <Link

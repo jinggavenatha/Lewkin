@@ -26,73 +26,91 @@ const SplitText = ({
     const el = ref.current;
     if (!el || animationCompletedRef.current) return;
 
-    const absoluteLines = splitType === "lines";
-    if (absoluteLines) el.style.position = "relative";
+    let cleanup = null;
 
-    const splitter = new GSAPSplitText(el, {
-      type: splitType,
-      absolute: absoluteLines,
-      linesClass: "split-line",
-    });
+    const initAnimation = () => {
+      if (!el || animationCompletedRef.current) return;
 
-    let targets;
-    switch (splitType) {
-      case "lines":
-        targets = splitter.lines;
-        break;
-      case "words":
-        targets = splitter.words;
-        break;
-      case "words, chars":
-        targets = [...splitter.words, ...splitter.chars];
-        break;
-      default:
-        targets = splitter.chars;
+      const absoluteLines = splitType === "lines";
+      if (absoluteLines) el.style.position = "relative";
+
+      const splitter = new GSAPSplitText(el, {
+        type: splitType,
+        absolute: absoluteLines,
+        linesClass: "split-line",
+      });
+
+      let targets;
+      switch (splitType) {
+        case "lines":
+          targets = splitter.lines;
+          break;
+        case "words":
+          targets = splitter.words;
+          break;
+        case "words, chars":
+          targets = [...splitter.words, ...splitter.chars];
+          break;
+        default:
+          targets = splitter.chars;
+      }
+
+      targets.forEach((t) => {
+        t.style.willChange = "transform, opacity";
+      });
+
+      const startPct = (1 - threshold) * 100;
+      const m = /^(-?\d+)px$/.exec(rootMargin);
+      const raw = m ? parseInt(m[1], 10) : 0;
+      const sign = raw < 0 ? `-=${Math.abs(raw)}px` : `+=${raw}px`;
+      const start = `top ${startPct}%${sign}`;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: el,
+          start,
+          toggleActions: "play none none none",
+          once: true,
+        },
+        smoothChildTiming: true,
+        onComplete: () => {
+          animationCompletedRef.current = true;
+          gsap.set(targets, {
+            ...to,
+            clearProps: "willChange",
+            immediateRender: true,
+          });
+          onLetterAnimationComplete?.();
+        },
+      });
+
+      tl.set(targets, { ...from, immediateRender: false, force3D: true });
+      tl.to(targets, {
+        ...to,
+        duration,
+        ease,
+        stagger: delay / 1000,
+        force3D: true,
+      });
+
+      cleanup = () => {
+        tl.kill();
+        ScrollTrigger.getAll().forEach((t) => t.kill());
+        gsap.killTweensOf(targets);
+        splitter.revert();
+      };
+    };
+
+    // Wait for fonts to load
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(initAnimation).catch(initAnimation);
+    } else {
+      // Fallback for older browsers
+      setTimeout(initAnimation, 100);
     }
 
-    targets.forEach((t) => {
-      t.style.willChange = "transform, opacity";
-    });
-
-    const startPct = (1 - threshold) * 100;
-    const m = /^(-?\d+)px$/.exec(rootMargin);
-    const raw = m ? parseInt(m[1], 10) : 0;
-    const sign = raw < 0 ? `-=${Math.abs(raw)}px` : `+=${raw}px`;
-    const start = `top ${startPct}%${sign}`;
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: el,
-        start,
-        toggleActions: "play none none none",
-        once: true,
-      },
-      smoothChildTiming: true,
-      onComplete: () => {
-        animationCompletedRef.current = true;
-        gsap.set(targets, {
-          ...to,
-          clearProps: "willChange",
-          immediateRender: true,
-        });
-        onLetterAnimationComplete?.();
-      },
-    });
-
-    tl.set(targets, { ...from, immediateRender: false, force3D: true });
-    tl.to(targets, {
-      ...to,
-      duration,
-      ease,
-      stagger: delay / 1000,
-      force3D: true,
-    });
-
     return () => {
-      tl.kill();
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-      gsap.killTweensOf(targets);
-      splitter.revert();
+      if (cleanup) cleanup();
     };
   }, [
     text,

@@ -46,6 +46,9 @@ export default function Navbar() {
               <NavLink to="/account" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Account
               </NavLink>
+              <NavLink to="/admin" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
+                Admin
+              </NavLink>
               <button 
                 onClick={handleLogout}
                 className="text-gray-600 hover:text-black"
@@ -102,6 +105,9 @@ export default function Navbar() {
               </NavLink>
               <NavLink to="/account" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                 Account
+              </NavLink>
+              <NavLink to="/admin" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                Admin
               </NavLink>
               <button 
                 onClick={() => { handleLogout(); toggleMenu(); }}

@@ -22,47 +22,66 @@ const ScrambledText = ({
   useEffect(() => {
     if (!rootRef.current) return;
 
-    const split = SplitText.create(rootRef.current.querySelector("p"), {
-      type: "chars",
-      charsClass: "char",
-    });
-    charsRef.current = split.chars;
+    let split = null;
+    let cleanup = null;
 
-    charsRef.current.forEach((c) => {
-      gsap.set(c, {
-        display: 'inline-block',
-        attr: { 'data-content': c.innerHTML },
+    const initAnimation = () => {
+      if (!rootRef.current) return;
+      
+      split = SplitText.create(rootRef.current.querySelector("p"), {
+        type: "chars",
+        charsClass: "char",
       });
-    });
+      charsRef.current = split.chars;
 
-    const handleMove = (e) => {
       charsRef.current.forEach((c) => {
-        const { left, top, width, height } = c.getBoundingClientRect();
-        const dx = e.clientX - (left + width / 2);
-        const dy = e.clientY - (top + height / 2);
-        const dist = Math.hypot(dx, dy);
-
-        if (dist < radius) {
-          gsap.to(c, {
-            overwrite: true,
-            duration: duration * (1 - dist / radius),
-            scrambleText: {
-              text: c.dataset.content || "",
-              chars: scrambleChars,
-              speed,
-            },
-            ease: "none",
-          });
-        }
+        gsap.set(c, {
+          display: 'inline-block',
+          attr: { 'data-content': c.innerHTML },
+        });
       });
+
+      const handleMove = (e) => {
+        charsRef.current.forEach((c) => {
+          const { left, top, width, height } = c.getBoundingClientRect();
+          const dx = e.clientX - (left + width / 2);
+          const dy = e.clientY - (top + height / 2);
+          const dist = Math.hypot(dx, dy);
+
+          if (dist < radius) {
+            gsap.to(c, {
+              overwrite: true,
+              duration: duration * (1 - dist / radius),
+              scrambleText: {
+                text: c.dataset.content || "",
+                chars: scrambleChars,
+                speed,
+              },
+              ease: "none",
+            });
+          }
+        });
+      };
+
+      const el = rootRef.current;
+      el.addEventListener("pointermove", handleMove);
+      
+      cleanup = () => {
+        el.removeEventListener("pointermove", handleMove);
+        if (split) split.revert();
+      };
     };
 
-    const el = rootRef.current;
-    el.addEventListener("pointermove", handleMove);
+    // Wait for fonts to load
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(initAnimation).catch(initAnimation);
+    } else {
+      // Fallback for older browsers
+      setTimeout(initAnimation, 100);
+    }
 
     return () => {
-      el.removeEventListener("pointermove", handleMove);
-      split.revert();
+      if (cleanup) cleanup();
     };
   }, [radius, duration, speed, scrambleChars]);
 
