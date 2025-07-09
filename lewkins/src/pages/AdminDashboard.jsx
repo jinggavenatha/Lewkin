@@ -1,17 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getProducts, addProduct, updateProduct, deleteProduct } from '../services/api';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  getProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+} from "../services/api";
 
 export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    description: '',
-    sizes: '',
-    colors: '',
-    image: '',
+    name: "",
+    price: "",
+    description: "",
+    sizes: "",
+    colors: "",
+    image: "",
   });
 
   useEffect(() => {
@@ -32,8 +37,8 @@ export default function AdminDashboard() {
       name: product.name,
       price: product.price,
       description: product.description,
-      sizes: product.sizes.join(','),
-      colors: product.colors.join(','),
+      sizes: product.sizes.join(","),
+      colors: product.colors.join(","),
       image: product.image,
     });
   };
@@ -41,12 +46,12 @@ export default function AdminDashboard() {
   const handleCancel = () => {
     setEditingProduct(null);
     setFormData({
-      name: '',
-      price: '',
-      description: '',
-      sizes: '',
-      colors: '',
-      image: '',
+      name: "",
+      price: "",
+      description: "",
+      sizes: "",
+      colors: "",
+      image: "",
     });
   };
 
@@ -56,8 +61,8 @@ export default function AdminDashboard() {
       name: formData.name,
       price: parseFloat(formData.price),
       description: formData.description,
-      sizes: formData.sizes.split(',').map((s) => s.trim()),
-      colors: formData.colors.split(',').map((c) => c.trim()),
+      sizes: formData.sizes.split(",").map((s) => s.trim()),
+      colors: formData.colors.split(",").map((c) => c.trim()),
       image: formData.image,
     };
     if (editingProduct) {
@@ -71,16 +76,23 @@ export default function AdminDashboard() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm("Are you sure you want to delete this product?")) {
       await deleteProduct(id);
       const updatedProducts = await getProducts();
       setProducts(updatedProducts);
     }
   };
 
+  const { state } = useStore();
+  if (state.userInfo?.role !== "admin") {
+    return <p>Akses ditolak. Hanya admin yang bisa masuk.</p>;
+  }
+
   return (
     <div className="max-w-5xl mx-auto p-4">
-      <h1 className="text-3xl font-semibold mb-6">Admin Dashboard - Product Management</h1>
+      <h1 className="text-3xl font-semibold mb-6">
+        Admin Dashboard - Product Management
+      </h1>
       <form onSubmit={handleSubmit} className="mb-8 space-y-4">
         <div>
           <label className="block font-semibold mb-1">Name</label>
@@ -116,7 +128,9 @@ export default function AdminDashboard() {
           />
         </div>
         <div>
-          <label className="block font-semibold mb-1">Sizes (comma separated)</label>
+          <label className="block font-semibold mb-1">
+            Sizes (comma separated)
+          </label>
           <input
             name="sizes"
             value={formData.sizes}
@@ -125,7 +139,9 @@ export default function AdminDashboard() {
           />
         </div>
         <div>
-          <label className="block font-semibold mb-1">Colors (comma separated)</label>
+          <label className="block font-semibold mb-1">
+            Colors (comma separated)
+          </label>
           <input
             name="colors"
             value={formData.colors}
@@ -144,10 +160,14 @@ export default function AdminDashboard() {
         </div>
         <div className="flex space-x-4">
           <button type="submit" className="btn-primary">
-            {editingProduct ? 'Update Product' : 'Add Product'}
+            {editingProduct ? "Update Product" : "Add Product"}
           </button>
           {editingProduct && (
-            <button type="button" onClick={handleCancel} className="btn-secondary">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="btn-secondary"
+            >
               Cancel
             </button>
           )}
@@ -167,7 +187,9 @@ export default function AdminDashboard() {
             {products.map((product) => (
               <tr key={product.id}>
                 <td className="border border-gray-300 p-2">{product.name}</td>
-                <td className="border border-gray-300 p-2">${product.price.toFixed(2)}</td>
+                <td className="border border-gray-300 p-2">
+                  ${product.price.toFixed(2)}
+                </td>
                 <td className="border border-gray-300 p-2">
                   <div className="flex flex-wrap gap-2">
                     <Link

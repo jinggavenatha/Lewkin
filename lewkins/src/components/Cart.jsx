@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { Link } from 'react-router-dom';
+import { formatRupiah } from '../utils/formatRupiah';
 
 export default function Cart() {
   const { state, dispatch } = useStore();
@@ -26,28 +27,55 @@ export default function Cart() {
     return `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`;
   };
 
-  const totalPrice = cartItems.reduce((a, c) => a + c.price * c.quantity, 0);
+  const totalPrice = cartItems.reduce((a, c) => a + c.price * (c.quantity || 1), 0);
+
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-semibold mb-4">Shopping Cart</h2>
+    <div className="flex justify-center items-center h-64">
       {cartItems.length === 0 ? (
-        <p>
-          Cart is empty. <Link to="/products" className="text-blue-600 underline">Go shopping</Link>
+        <p className="text-center text-gray-600">
+          Cart is empty. 
+          <Link 
+            to="/products" 
+            className="text-blue-600 underline">
+              Go shopping
+          </Link>
         </p>
       ) : (
         <div className="space-y-4">
           {cartItems.map((item) => (
-            <div key={generateCartItemKey(item)} className="flex items-center space-x-4 border-b pb-4">
-              <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
+            <div 
+              key={generateCartItemKey(item)} 
+              className="flex items-center space-x-4 border-b pb-4"
+            >
+
+              <img 
+              src={item.image} 
+              alt={item.name} 
+              className="w-20 h-20 object-cover rounded" 
+              />
+
               <div className="flex-grow">
-                <Link to={`/products/${item.id}`} className="text-lg font-semibold text-black hover:text-gray-700 transition-colors">
+
+                <Link 
+                  to={`/products/${item.id}`} 
+                  className="text-lg font-semibold text-black hover:text-gray-700 transition-colors">
                   {item.name}
                 </Link>
-                <p className="text-gray-600">Price: ${item.price.toFixed(2)}</p>
+
+                <p 
+                  className="text-gray-600"> 
+                  Price: {formatRupiah(item.price)}
+                </p>
+
                 {item.size && <p className="text-gray-600">Size: {item.size}</p>}
                 {item.color && <p className="text-gray-600">Color: {item.color}</p>}
-                <p className="text-sm text-gray-500">Subtotal: ${(item.price * item.quantity).toFixed(2)}</p>
+                
+                <p 
+                  className="text-sm text-gray-500">
+                    Subtotal: {formatRupiah(item.price * (item.quantity || 1))}
+                </p>
+
               </div>
               <div className="flex items-center space-x-2">
                 <button
@@ -70,6 +98,7 @@ export default function Cart() {
                   </svg>
                 </button>
               </div>
+
               <button
                 onClick={() => removeFromCart(item)}
                 className="text-red-600 hover:text-red-800 p-1 transition-colors"
@@ -82,10 +111,12 @@ export default function Cart() {
             </div>
           ))}
           <div className="text-right font-semibold text-lg border-t pt-4">
-            Total: ${totalPrice.toFixed(2)}
+            Total: {formatRupiah(totalPrice)}
           </div>
           <div className="text-right">
-            <Link to="/checkout" className="bg-black text-white px-6 py-3 rounded font-semibold hover:bg-gray-800 transition-colors inline-block">
+            <Link 
+              to="/checkout" 
+              className="bg-black text-white px-6 py-3 rounded font-semibold hover:bg-gray-800 transition-colors inline-block">
               Proceed to Checkout
             </Link>
           </div>

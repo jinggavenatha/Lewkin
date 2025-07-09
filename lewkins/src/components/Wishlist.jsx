@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { Link } from 'react-router-dom';
+import { formatRupiah } from '../utils/formatRupiah';
 
 export default function Wishlist() {
   const { state, dispatch } = useStore();
@@ -11,12 +12,16 @@ export default function Wishlist() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-semibold mb-4">Wishlist</h2>
-      {items.length === 0 ? (
-        <p>
-          Your wishlist is empty. <Link to="/products" className="text-blue-600 underline">Browse products</Link>
-        </p>
+    <div className="flex justify-center items-center h-64">
+          {items.length === 0 ? (
+            <p className="text-center text-gray-600">
+              Your wishlist is empty. 
+              <Link 
+                to="/products" 
+                className="text-blue-600 underline">
+                  Go shopping
+              </Link>
+            </p>
       ) : (
         <div className="space-y-4">
           {items.map((item) => (
@@ -26,7 +31,7 @@ export default function Wishlist() {
                 <Link to={`/products/${item.id}`} className="text-lg font-semibold text-black">
                   {item.name}
                 </Link>
-                <p className="text-gray-600">Price: ${item.price.toFixed(2)}</p>
+                <p className="text-gray-600">Price: {formatRupiah(item.price)}</p>
               </div>
               <button
                 onClick={() => removeFromWishlist(item)}

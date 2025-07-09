@@ -18,6 +18,9 @@ import Account from './pages/Account';
 import AdminDashboard from './pages/AdminDashboard';
 import ProductPreview from './pages/ProductPreview';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function App() {
   return (
@@ -71,17 +74,20 @@ function App() {
               
               {/* Admin Routes */}
               <Route path="/admin" element={
-                <ProtectedRoute>
+                <ProtectedRoute requireAdmin={true}>
                   <AdminDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/product-preview/:id" element={
-                <ProtectedRoute>
+                <ProtectedRoute requireAdmin={true}>
                   <ProductPreview />
                 </ProtectedRoute>
               } />
             </Routes>
           </main>
+
+          <ToastContainer position="top-right" autoClose={2000} />
+
           <Footer />
         </div>
       </Router>

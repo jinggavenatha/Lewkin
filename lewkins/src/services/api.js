@@ -3,7 +3,7 @@ const mockProducts = [
   {
     id: 1,
     name: "Classic White T-Shirt",
-    price: 25.99,
+    price: 55000,
     category: "T-Shirts",
     image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg",
     description: "A comfortable and stylish white t-shirt made from 100% cotton.",
@@ -13,7 +13,7 @@ const mockProducts = [
   {
     id: 2,
     name: "Denim Jacket",
-    price: 79.99,
+    price: 128000,
     category: "Jackets",
     image: "https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg",
     description: "A trendy denim jacket perfect for casual outings.",
@@ -23,7 +23,7 @@ const mockProducts = [
   {
     id: 3,
     name: "Summer Dress",
-    price: 45.99,
+    price: 230000,
     category: "Dresses",
     image: "https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg",
     description: "A beautiful summer dress for warm weather.",
@@ -33,7 +33,7 @@ const mockProducts = [
   {
     id: 4,
     name: "Casual Jeans",
-    price: 59.99,
+    price: 70000,
     category: "Jeans",
     image: "https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg",
     description: "Comfortable casual jeans for everyday wear.",
@@ -43,7 +43,7 @@ const mockProducts = [
   {
     id: 5,
     name: "Black Sneakers",
-    price: 79.99,
+    price: 400000,
     category: "Shoes",
     image: "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg",
     description: "Comfortable black sneakers with excellent support. Ideal for daily wear and light athletic activities.",
@@ -53,7 +53,7 @@ const mockProducts = [
   {
     id: 6,
     name: "Leather Wallet",
-    price: 45.99,
+    price: 420000,
     category: "Accessories",
     image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg",
     description: "Premium leather wallet with multiple card slots and bill compartments. Compact yet spacious design.",
@@ -63,7 +63,7 @@ const mockProducts = [
   {
     id: 7,
     name: "Wool Sweater",
-    price: 69.99,
+    price: 699000,
     category: "Sweaters",
     image: "https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg",
     description: "Cozy wool sweater perfect for cold weather. Soft texture and classic design that never goes out of style.",
