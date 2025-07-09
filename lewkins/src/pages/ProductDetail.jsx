@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getProductById } from '../services/api';
 import { useStore } from '../context/StoreContext';
+import { formatRupiah } from '../utils/formatRupiah';
+import { toast } from 'react-toastify';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -32,11 +34,11 @@ export default function ProductDetail() {
 
   const addToCart = () => {
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      alert('Silakan pilih ukuran');
+      toast.error('Silakan pilih ukuran');
       return;
     }
     if (product.colors && product.colors.length > 0 && !selectedColor) {
-      alert('Silakan pilih warna');
+      toast.error('Silakan pilih warna');
       return;
     }
     dispatch({
@@ -48,7 +50,7 @@ export default function ProductDetail() {
         quantity 
       },
     });
-    alert('Produk berhasil ditambahkan ke keranjang!');
+    toast.success('Produk berhasil ditambahkan ke keranjang!');
   };
 
   if (loading) {
@@ -91,7 +93,7 @@ export default function ProductDetail() {
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-2xl font-semibold text-gray-900 mb-4">${product.price.toFixed(2)}</p>
+            <p className="text-2xl font-semibold text-gray-900 mb-4">{formatRupiah(product.price)}</p>
             {product.category && (
               <span className="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
                 {product.category}

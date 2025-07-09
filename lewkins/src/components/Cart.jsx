@@ -2,6 +2,7 @@ import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { Link } from 'react-router-dom';
 import { formatRupiah } from '../utils/formatRupiah';
+import { toast } from 'react-toastify';
 
 export default function Cart() {
   const { state, dispatch } = useStore();
@@ -9,6 +10,7 @@ export default function Cart() {
 
   const removeFromCart = (item) => {
     dispatch({ type: 'CART_REMOVE_ITEM', payload: item });
+    toast.success('Produk berhasil dihapus dari keranjang');
   };
 
   const updateQuantity = (item, newQuantity) => {
@@ -22,6 +24,20 @@ export default function Cart() {
     dispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity: newQuantity } });
   };
 
+  const updateItemOption = (item, field, newValue, itemIndex) => {
+    // Create updated item with new field value
+    const updatedItem = { ...item, [field]: newValue };
+    
+    // Update cart items by index instead of removing and re-adding
+    const updatedCartItems = cartItems.map((cartItem, index) => 
+      index === itemIndex ? updatedItem : cartItem
+    );
+    
+    // Dispatch updated cart items directly
+    dispatch({ type: 'CART_UPDATE_ITEMS', payload: updatedCartItems });
+    toast.success(`${field === 'size' ? 'Ukuran' : 'Warna'} berhasil diubah`);
+  };
+
   // Generate unique key untuk setiap cart item
   const generateCartItemKey = (item) => {
     return `${item.id}-${item.size || 'no-size'}-${item.color || 'no-color'}`;
@@ -29,54 +45,101 @@ export default function Cart() {
 
   const totalPrice = cartItems.reduce((a, c) => a + c.price * (c.quantity || 1), 0);
 
-
   return (
-    <div className="flex justify-center items-center h-64">
+    <div className="flex justify-center items-center min-h-64">
       {cartItems.length === 0 ? (
         <p className="text-center text-gray-600">
           Cart is empty. 
           <Link 
             to="/products" 
-            className="text-blue-600 underline">
+            className="text-blue-600 underline ml-1">
               Go shopping
           </Link>
         </p>
       ) : (
-        <div className="space-y-4">
-          {cartItems.map((item) => (
+        <div className="space-y-4 w-full max-w-4xl">
+          {cartItems.map((item, index) => (
             <div 
               key={generateCartItemKey(item)} 
-              className="flex items-center space-x-4 border-b pb-4"
+              className="flex items-center space-x-4 border-b pb-4 bg-white p-4 rounded-lg shadow-sm"
             >
 
               <img 
-              src={item.image} 
-              alt={item.name} 
-              className="w-20 h-20 object-cover rounded" 
+                src={item.image} 
+                alt={item.name} 
+                className="w-20 h-20 object-cover rounded" 
               />
 
               <div className="flex-grow">
-
                 <Link 
                   to={`/products/${item.id}`} 
-                  className="text-lg font-semibold text-black hover:text-gray-700 transition-colors">
+                  className="text-lg font-semibold text-black hover:text-gray-700 transition-colors block mb-2">
                   {item.name}
                 </Link>
 
-                <p 
-                  className="text-gray-600"> 
+                <p className="text-gray-600 mb-2"> 
                   Price: {formatRupiah(item.price)}
                 </p>
 
-                {item.size && <p className="text-gray-600">Size: {item.size}</p>}
-                {item.color && <p className="text-gray-600">Color: {item.color}</p>}
-                
-                <p 
-                  className="text-sm text-gray-500">
-                    Subtotal: {formatRupiah(item.price * (item.quantity || 1))}
-                </p>
+                {/* Size and Color Options */}
+                <div className="flex flex-wrap gap-4 mb-2">
+                  {/* Size Dropdown */}
+                  {item.sizes && item.sizes.length > 0 && (
+                    <div className="flex items-center space-x-2">
+                      <label className="text-sm text-gray-600">Size:</label>
+                      <select
+                        value={item.size || ''}
+                        onChange={(e) => updateItemOption(item, 'size', e.target.value, index)}
+                        className="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        {item.sizes.map((size) => (
+                          <option key={size} value={size}>
+                            {size}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
+                  {/* Color Dropdown */}
+                  {item.colors && item.colors.length > 0 && (
+                    <div className="flex items-center space-x-2">
+                      <label className="text-sm text-gray-600">Color:</label>
+                      <select
+                        value={item.color || ''}
+                        onChange={(e) => updateItemOption(item, 'color', e.target.value, index)}
+                        className="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        {item.colors.map((color) => (
+                          <option key={color} value={color}>
+                            {color}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Current Selection Display */}
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {item.size && (
+                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                      Size: {item.size}
+                    </span>
+                  )}
+                  {item.color && (
+                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                      Color: {item.color}
+                    </span>
+                  )}
+                </div>
+                
+                <p className="text-sm text-gray-500 font-medium">
+                  Subtotal: {formatRupiah(item.price * (item.quantity || 1))}
+                </p>
               </div>
+
+              {/* Quantity Controls */}
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => updateQuantity(item, item.quantity - 1)}
@@ -99,6 +162,7 @@ export default function Cart() {
                 </button>
               </div>
 
+              {/* Remove Button */}
               <button
                 onClick={() => removeFromCart(item)}
                 className="text-red-600 hover:text-red-800 p-1 transition-colors"
@@ -110,15 +174,19 @@ export default function Cart() {
               </button>
             </div>
           ))}
-          <div className="text-right font-semibold text-lg border-t pt-4">
-            Total: {formatRupiah(totalPrice)}
-          </div>
-          <div className="text-right">
-            <Link 
-              to="/checkout" 
-              className="bg-black text-white px-6 py-3 rounded font-semibold hover:bg-gray-800 transition-colors inline-block">
-              Proceed to Checkout
-            </Link>
+          
+          {/* Total and Checkout */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-right font-semibold text-xl border-t pt-4 mb-4">
+              Total: {formatRupiah(totalPrice)}
+            </div>
+            <div className="text-right">
+              <Link 
+                to="/checkout" 
+                className="bg-black text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors inline-block">
+                Proceed to Checkout
+              </Link>
+            </div>
           </div>
         </div>
       )}

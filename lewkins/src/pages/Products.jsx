@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import ProductFilter from "../components/ProductFilter";
 import { getProducts } from "../services/api";
 
 export default function Products() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +18,21 @@ export default function Products() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Handle URL parameters
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl && categoryFromUrl !== selectedCategory) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [searchParams]);
+
+  // Apply filters when selectedCategory changes
+  useEffect(() => {
+    if (products.length > 0) {
+      applyFilters(searchTerm, selectedCategory, priceRange);
+    }
+  }, [selectedCategory, products]);
 
   const fetchProducts = async () => {
     try {
@@ -58,6 +75,13 @@ export default function Products() {
   const handleCategoryFilter = (category) => {
     setSelectedCategory(category);
     applyFilters(searchTerm, category, priceRange);
+    
+    // Update URL search params
+    if (category) {
+      setSearchParams({ category });
+    } else {
+      setSearchParams({});
+    }
   };
 
   const handlePriceFilter = (range) => {
@@ -195,11 +219,13 @@ export default function Products() {
                   className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 >
                   <option value="">All Categories</option>
-                  <option value="shirts">Shirts</option>
-                  <option value="pants">Pants</option>
-                  <option value="dresses">Dresses</option>
-                  <option value="jackets">Jackets</option>
-                  <option value="accessories">Accessories</option>
+                  <option value="T-Shirts">T-Shirts</option>
+                  <option value="Jackets">Jackets</option>
+                  <option value="Sweaters">Sweaters</option>
+                  <option value="Dresses">Dresses</option>
+                  <option value="Jeans">Jeans</option>
+                  <option value="Shoes">Shoes</option>
+                  <option value="Accessories">Accessories</option>
                 </select>
               </div>
 
@@ -256,6 +282,7 @@ export default function Products() {
                   setPriceRange({ min: "", max: "" });
                   setSearchTerm("");
                   setFilteredProducts(products);
+                  setSearchParams({});
                 }}
                 className="w-full px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
               >

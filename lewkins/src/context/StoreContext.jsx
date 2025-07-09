@@ -45,6 +45,9 @@ function reducer(state, action) {
       );
       return { ...state, cart: { ...state.cart, cartItems } };
     }
+    case 'CART_UPDATE_ITEMS': {
+      return { ...state, cart: { ...state.cart, cartItems: action.payload } };
+    }
     case 'CART_CLEAR': {
       return { ...state, cart: { cartItems: [] } };
     }
