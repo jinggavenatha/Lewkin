@@ -4,17 +4,13 @@ import { useStore } from '../context/StoreContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { state, dispatch } = useStore();
+  const { state } = useStore();
   const cartCount = state.cart.cartItems.length;
   const wishlistCount = state.wishlist.items.length;
   const userInfo = state.userInfo;
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
-  };
-
-  const handleLogout = () => {
-    dispatch({ type: 'USER_LOGOUT' });
   };
 
   return (
@@ -27,8 +23,7 @@ export default function Navbar() {
           <NavLink to="/" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
             Home
           </NavLink>
-          
-          {/* Authenticated Area */}
+
           {userInfo ? (
             <>
               <NavLink to="/shop" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
@@ -46,15 +41,8 @@ export default function Navbar() {
               <NavLink to="/account" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Account
               </NavLink>
-              <button 
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-black"
-              >
-                Logout
-              </button>
             </>
           ) : (
-            /* Public Area */
             <>
               <NavLink to="/products" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Products
@@ -68,6 +56,7 @@ export default function Navbar() {
             </>
           )}
         </div>
+
         <div className="md:hidden">
           <button onClick={toggleMenu} aria-label="Toggle menu" className="text-black focus:outline-none focus:ring-2 focus:ring-black">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -80,12 +69,13 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+
       {isOpen && (
         <div className="md:hidden bg-white shadow-md">
           <NavLink to="/" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
             Home
           </NavLink>
-          
+
           {userInfo ? (
             <>
               <NavLink to="/shop" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
@@ -103,12 +93,6 @@ export default function Navbar() {
               <NavLink to="/account" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                 Account
               </NavLink>
-              <button 
-                onClick={() => { handleLogout(); toggleMenu(); }}
-                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-              >
-                Logout
-              </button>
             </>
           ) : (
             <>
@@ -125,3 +109,4 @@ export default function Navbar() {
     </nav>
   );
 }
+
