@@ -47,7 +47,7 @@ export default function Shop() {
         {/* Page Header */}
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            All Products
+            All Categories
           </h1>
           <p className="text-gray-600">
             Discover our complete collection of high-quality clothing
@@ -60,11 +60,11 @@ export default function Shop() {
               key={category.slug}
               className="flex flex-col items-center group transition-transform duration-200 hover:scale-105"
             >
-              <img
+              {/* <img
                 src={category.image}
                 alt={category.name}
                 className="w-24 h-24 object-contain mb-2"
-              />
+              /> */}
               <span className="text-base font-medium group-hover:underline text-center">
                 {category.name}
               </span>

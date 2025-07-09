@@ -261,7 +261,7 @@ export default function ProductCard({ product, delay = 0 }) {
             </div>
 
             {/* Color tags + wishlist */}
-            <div className="flex justify-between items-center mt-4">
+            {/* <div className="flex justify-between items-center mt-4">
               <div className="flex space-x-2">
                 {product.colors &&
                   product.colors.map((color, index) => (
@@ -286,7 +286,7 @@ export default function ProductCard({ product, delay = 0 }) {
                   />
                 </svg>
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </FadeContent>

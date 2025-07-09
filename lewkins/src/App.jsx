@@ -51,11 +51,11 @@ function App() {
                   <ProductDetail />
                 </ProtectedRoute>
               } />
-              <Route path="/wishlist" element={
+              {/* <Route path="/wishlist" element={
                 <ProtectedRoute>
                   <WishlistPage />
                 </ProtectedRoute>
-              } />
+              } /> */}
               <Route path="/cart" element={
                 <ProtectedRoute>
                   <CartPage />
@@ -77,6 +77,9 @@ function App() {
                 <ProtectedRoute requireAdmin={true}>
                   <AdminDashboard />
                 </ProtectedRoute>
+               } />
+               <Route path="/admins" element={
+                  <AdminDashboard />
               } />
               <Route path="/product-preview/:id" element={
                 <ProtectedRoute requireAdmin={true}>

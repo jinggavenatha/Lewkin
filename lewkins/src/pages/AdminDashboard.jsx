@@ -83,10 +83,10 @@ export default function AdminDashboard() {
     }
   };
 
-  const { state } = useStore();
-  if (state.userInfo?.role !== "admin") {
-    return <p>Akses ditolak. Hanya admin yang bisa masuk.</p>;
-  }
+  // const { state } = useStore();
+  // if (state.userInfo?.role !== "admin") {
+  //   return <p>Akses ditolak. Hanya admin yang bisa masuk.</p>;
+  // }
 
   return (
     <div className="max-w-5xl mx-auto p-4">

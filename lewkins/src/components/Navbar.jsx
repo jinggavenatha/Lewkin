@@ -32,9 +32,9 @@ export default function Navbar() {
               <NavLink to="/products" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Products
               </NavLink>
-              <NavLink to="/wishlist" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
+              {/* <NavLink to="/wishlist" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Wishlist {wishlistCount > 0 && <span className="ml-1 text-sm text-red-600">({wishlistCount})</span>}
-              </NavLink>
+              </NavLink> */}
               <NavLink to="/cart" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Cart {cartCount > 0 && <span className="ml-1 text-sm text-green-600">({cartCount})</span>}
               </NavLink>
