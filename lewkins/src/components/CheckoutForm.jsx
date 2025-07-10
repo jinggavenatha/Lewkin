@@ -68,7 +68,8 @@ export default function CheckoutForm() {
           price: item.price,
           quantity: item.quantity,
           size: item.size,
-          color: item.color
+          color: item.color,
+          image: item.image
         })),
         shipping_cost: shippingCost,
         tax_rate: 0.11,

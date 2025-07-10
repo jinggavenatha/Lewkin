@@ -17,6 +17,7 @@ import Register from './pages/Register';
 import Account from './pages/Account';
 import AdminDashboard from './pages/AdminDashboard';
 import ProductPreview from './pages/ProductPreview';
+import OrderHistory from './pages/OrderHistory';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function AppContent() {
@@ -67,6 +68,11 @@ function AppContent() {
           <Route path="/account" element={
             <ProtectedRoute>
               <Account />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders" element={
+            <ProtectedRoute>
+              <OrderHistory />
             </ProtectedRoute>
           } />
           

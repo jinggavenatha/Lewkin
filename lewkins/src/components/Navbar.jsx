@@ -43,6 +43,11 @@ export default function Navbar() {
               <NavLink to="/cart" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Cart {cartCount > 0 && <span className="ml-1 text-sm text-green-600">({cartCount})</span>}
               </NavLink>
+              {!isAdmin && (
+                <NavLink to="/orders" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
+                  Orders
+                </NavLink>
+              )}
               <NavLink to="/account" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Account
               </NavLink>
@@ -62,9 +67,14 @@ export default function Navbar() {
                   <NavLink to="/account" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                     Profile
                   </NavLink>
+                  {!isAdmin && (
+                    <NavLink to="/orders" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      My Orders
+                    </NavLink>
+                  )}
                   <button 
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 border-t"
                   >
                     Logout
                   </button>
@@ -119,6 +129,11 @@ export default function Navbar() {
               <NavLink to="/cart" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                 Cart {cartCount > 0 && <span className="ml-1 text-sm text-green-600">({cartCount})</span>}
               </NavLink>
+              {!isAdmin && (
+                <NavLink to="/orders" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  Orders
+                </NavLink>
+              )}
               <NavLink to="/account" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                 Account
               </NavLink>
