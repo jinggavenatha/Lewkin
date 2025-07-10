@@ -52,14 +52,19 @@ function ProductSelectionModal({ product, isOpen, onClose, onConfirm }) {
           {/* Product Info */}
           <div className="flex items-center space-x-3 mb-6">
             <img
-              src={product.image}
+              src={product.image_url || product.image || 'https://via.placeholder.com/400'}
               alt={product.name}
               className="w-16 h-16 object-cover rounded"
             />
             <div>
               <h4 className="font-medium">{product.name}</h4>
               <p className="text-lg font-semibold text-gray-900">
-                {formatRupiah(product.price)}
+                {product.starting_price && parseFloat(product.starting_price) > 0 
+                  ? formatRupiah(parseFloat(product.starting_price))
+                  : product.price && parseFloat(product.price) > 0
+                  ? formatRupiah(parseFloat(product.price))
+                  : "Contact for Price"
+                }
               </p>
             </div>
           </div>
@@ -185,6 +190,17 @@ export default function ProductCard({ product, delay = 0 }) {
   };
 
   const handleModalConfirm = (productWithOptions) => {
+    // Find the matching variant for the selected options
+    if (product.variants && product.variants.length > 0) {
+      const variant = product.variants.find(v => 
+        v.size === productWithOptions.size && v.color === productWithOptions.color
+      );
+      if (variant) {
+        productWithOptions.variant_id = variant.id;
+        productWithOptions.price = parseFloat(variant.price);
+      }
+    }
+    
     dispatch({ type: "CART_ADD_ITEM", payload: productWithOptions });
     toast.success("Produk berhasil ditambahkan ke keranjang!");
   };
@@ -216,7 +232,7 @@ export default function ProductCard({ product, delay = 0 }) {
               >
                 <div className="aspect-square overflow-hidden">
                   <img
-                    src={product.image}
+                    src={product.image_url || product.image || 'https://via.placeholder.com/400'}
                     alt={product.name}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
@@ -238,9 +254,14 @@ export default function ProductCard({ product, delay = 0 }) {
             <Link to={`/products/${product.id}`} className="block mb-4">
               <div className="flex justify-between items-center hover:bg-gray-50 p-2 -m-2 rounded transition-colors duration-200">
                 <span className="text-2xl font-bold">
-                  {formatRupiah(product.price)}
+                  {product.starting_price && parseFloat(product.starting_price) > 0 
+                    ? formatRupiah(parseFloat(product.starting_price))
+                    : product.price && parseFloat(product.price) > 0
+                    ? formatRupiah(parseFloat(product.price))
+                    : "Contact for Price"
+                  }
                 </span>
-                <span className="text-sm text-gray-500">{product.category}</span>
+                <span className="text-sm text-gray-500">{product.category_name || product.category}</span>
               </div>
             </Link>
 

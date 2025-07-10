@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getProductById } from '../services/api';
+import { getProductDetail } from '../services/api';
 import { useStore } from '../context/StoreContext';
 import { formatRupiah } from '../utils/formatRupiah';
 import { toast } from 'react-toastify';
@@ -11,6 +11,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,10 +20,36 @@ export default function ProductDetail() {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const data = await getProductById(id);
-        setProduct(data);
-        if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);
-        if (data.colors && data.colors.length > 0) setSelectedColor(data.colors[0]);
+        const response = await getProductDetail(id);
+        const data = response.datas || response;
+        
+        // Transform backend data to frontend format
+        const transformedProduct = {
+          id: data.id,
+          name: data.name,
+          description: data.description,
+          category: data.category_name,
+          seller: data.seller_name,
+          image: data.images?.[0]?.image_url || 'https://via.placeholder.com/400',
+          variants: data.variants || [],
+          images: data.images || [],
+          // Extract unique colors and sizes from variants
+          colors: [...new Set(data.variants?.map(v => v.color).filter(Boolean) || [])],
+          sizes: [...new Set(data.variants?.map(v => v.size).filter(Boolean) || [])],
+          // Use minimum price from variants
+          price: data.variants?.length > 0 
+            ? Math.min(...data.variants.map(v => parseFloat(v.price)).filter(p => p > 0)) 
+            : 0
+        };
+        
+        setProduct(transformedProduct);
+        if (transformedProduct.sizes && transformedProduct.sizes.length > 0) setSelectedSize(transformedProduct.sizes[0]);
+        if (transformedProduct.colors && transformedProduct.colors.length > 0) setSelectedColor(transformedProduct.colors[0]);
+        
+        // Set initial variant if available
+        if (transformedProduct.variants && transformedProduct.variants.length > 0) {
+          setSelectedVariant(transformedProduct.variants[0]);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -31,6 +58,16 @@ export default function ProductDetail() {
     };
     fetchProduct();
   }, [id]);
+
+  // Update selected variant when size or color changes
+  useEffect(() => {
+    if (product && product.variants && selectedSize && selectedColor) {
+      const variant = product.variants.find(v => 
+        v.size === selectedSize && v.color === selectedColor
+      );
+      setSelectedVariant(variant || null);
+    }
+  }, [selectedSize, selectedColor, product]);
 
   const addToCart = () => {
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
@@ -41,13 +78,24 @@ export default function ProductDetail() {
       toast.error('Silakan pilih warna');
       return;
     }
+    if (!selectedVariant) {
+      toast.error('Varian produk tidak tersedia');
+      return;
+    }
+    if (selectedVariant.stock < quantity) {
+      toast.error(`Stok tidak mencukupi. Tersisa ${selectedVariant.stock} item`);
+      return;
+    }
+    
     dispatch({
       type: 'CART_ADD_ITEM',
       payload: { 
         ...product, 
+        variant_id: selectedVariant.id,
         size: selectedSize, 
         color: selectedColor, 
-        quantity 
+        quantity,
+        price: parseFloat(selectedVariant.price)
       },
     });
     toast.success('Produk berhasil ditambahkan ke keranjang!');
@@ -93,7 +141,19 @@ export default function ProductDetail() {
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-2xl font-semibold text-gray-900 mb-4">{formatRupiah(product.price)}</p>
+            <p className="text-2xl font-semibold text-gray-900 mb-4">
+              {selectedVariant && selectedVariant.price 
+                ? formatRupiah(parseFloat(selectedVariant.price))
+                : product.price > 0
+                ? formatRupiah(product.price)
+                : "Select variant for price"
+              }
+            </p>
+            {selectedVariant && (
+              <p className="text-sm text-gray-600 mb-2">
+                Stock: {selectedVariant.stock} available
+              </p>
+            )}
             {product.category && (
               <span className="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
                 {product.category}
@@ -182,7 +242,7 @@ export default function ProductDetail() {
               </button>
               <span className="w-12 text-center font-semibold text-lg">{quantity}</span>
               <button
-                onClick={() => setQuantity(Math.min(10, quantity + 1))}
+                onClick={() => setQuantity(Math.min(selectedVariant?.stock || 10, quantity + 1))}
                 className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

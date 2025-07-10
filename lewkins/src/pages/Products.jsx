@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import ProductFilter from "../components/ProductFilter";
-import { getProducts } from "../services/api";
+import { getProductsFromAPI, getCategories } from "../services/api";
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("");
   const [error, setError] = useState(null);
@@ -17,7 +18,20 @@ export default function Products() {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await getCategories();
+      const categoriesData = response.datas || response;
+      const categoriesArray = Array.isArray(categoriesData) ? categoriesData : [];
+      setCategories(categoriesArray);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+      setCategories([]);
+    }
+  };
 
   // Handle URL parameters
   useEffect(() => {
@@ -38,12 +52,19 @@ export default function Products() {
     try {
       setLoading(true);
       setError(null);
-      const data = await getProducts();
-      setProducts(data);
-      setFilteredProducts(data);
+      const response = await getProductsFromAPI();
+      const data = response.datas || response; // Handle both response formats
+      
+      // Ensure data is always an array
+      const productsArray = Array.isArray(data) ? data : [];
+      setProducts(productsArray);
+      setFilteredProducts(productsArray);
     } catch (err) {
       setError("Gagal memuat produk. Silakan coba lagi.");
       console.error("Error fetching products:", err);
+      // Set empty arrays on error to prevent map errors
+      setProducts([]);
+      setFilteredProducts([]);
     } finally {
       setLoading(false);
     }
@@ -55,13 +76,24 @@ export default function Products() {
     const sortValue = e.target.value;
     setSortBy(sortValue);
 
-    const sorted = [...filteredProducts];
+    // Ensure filteredProducts is always an array
+    const filteredArray = Array.isArray(filteredProducts) ? filteredProducts : [];
+    const sorted = [...filteredArray];
+    
     if (sortValue === "name") {
-      sorted.sort((a, b) => a.name.localeCompare(b.name));
+      sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     } else if (sortValue === "price-low") {
-      sorted.sort((a, b) => a.price - b.price);
+      sorted.sort((a, b) => {
+        const priceA = parseFloat(a.starting_price) || parseFloat(a.price) || 0;
+        const priceB = parseFloat(b.starting_price) || parseFloat(b.price) || 0;
+        return priceA - priceB;
+      });
     } else if (sortValue === "price-high") {
-      sorted.sort((a, b) => b.price - a.price);
+      sorted.sort((a, b) => {
+        const priceA = parseFloat(a.starting_price) || parseFloat(a.price) || 0;
+        const priceB = parseFloat(b.starting_price) || parseFloat(b.price) || 0;
+        return priceB - priceA;
+      });
     }
 
     setFilteredProducts(sorted);
@@ -90,33 +122,44 @@ export default function Products() {
   };
 
   const applyFilters = (search, category, price) => {
-    let filtered = [...products];
+    // Ensure products is always an array
+    const productsArray = Array.isArray(products) ? products : [];
+    let filtered = [...productsArray];
 
     // Search filter
     if (search) {
       filtered = filtered.filter(
         (p) =>
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
+          p.name?.toLowerCase().includes(search.toLowerCase()) ||
           p.description?.toLowerCase().includes(search.toLowerCase()) ||
-          p.category?.toLowerCase().includes(search.toLowerCase())
+          p.category?.toLowerCase().includes(search.toLowerCase()) ||
+          p.category_name?.toLowerCase().includes(search.toLowerCase())
       );
     }
 
     // Category filter
     if (category && category !== "all") {
-      filtered = filtered.filter((p) => p.category === category);
+      filtered = filtered.filter((p) => p.category_name === category || p.category === category);
     }
 
     // Price filter
     if (price.min !== "" && price.max !== "") {
       filtered = filtered.filter(
-        (p) =>
-          p.price >= parseFloat(price.min) && p.price <= parseFloat(price.max)
+        (p) => {
+          const productPrice = parseFloat(p.starting_price) || parseFloat(p.price) || 0;
+          return productPrice > 0 && productPrice >= parseFloat(price.min) && productPrice <= parseFloat(price.max);
+        }
       );
     } else if (price.min !== "") {
-      filtered = filtered.filter((p) => p.price >= parseFloat(price.min));
+      filtered = filtered.filter((p) => {
+        const productPrice = parseFloat(p.starting_price) || parseFloat(p.price) || 0;
+        return productPrice > 0 && productPrice >= parseFloat(price.min);
+      });
     } else if (price.max !== "") {
-      filtered = filtered.filter((p) => p.price <= parseFloat(price.max));
+      filtered = filtered.filter((p) => {
+        const productPrice = parseFloat(p.starting_price) || parseFloat(p.price) || 0;
+        return productPrice > 0 && productPrice <= parseFloat(price.max);
+      });
     }
 
     setFilteredProducts(filtered);
@@ -219,13 +262,11 @@ export default function Products() {
                   className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 >
                   <option value="">All Categories</option>
-                  <option value="T-Shirts">T-Shirts</option>
-                  <option value="Jackets">Jackets</option>
-                  <option value="Sweaters">Sweaters</option>
-                  <option value="Dresses">Dresses</option>
-                  <option value="Jeans">Jeans</option>
-                  <option value="Shoes">Shoes</option>
-                  <option value="Accessories">Accessories</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -281,7 +322,8 @@ export default function Products() {
                   setSelectedCategory("");
                   setPriceRange({ min: "", max: "" });
                   setSearchTerm("");
-                  setFilteredProducts(products);
+                  const productsArray = Array.isArray(products) ? products : [];
+                  setFilteredProducts(productsArray);
                   setSearchParams({});
                 }}
                 className="w-full px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors"
@@ -297,7 +339,7 @@ export default function Products() {
             <div className="flex justify-between items-center mb-6">
               <p className="text-gray-600">
                 Showing{" "}
-                <span className="font-semibold">{filteredProducts.length}</span>{" "}
+                <span className="font-semibold">{Array.isArray(filteredProducts) ? filteredProducts.length : 0}</span>{" "}
                 products
               </p>
               <div className="flex items-center gap-2">
@@ -316,7 +358,7 @@ export default function Products() {
             </div>
 
             {/* Product Grid or Empty State */}
-            {filteredProducts.length === 0 ? (
+            {!Array.isArray(filteredProducts) || filteredProducts.length === 0 ? (
               <div className="text-center py-20">
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400 mb-4"
@@ -340,7 +382,7 @@ export default function Products() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProducts.map((product, index) => (
+                {(Array.isArray(filteredProducts) ? filteredProducts : []).map((product, index) => (
                   <ProductCard
                     key={product.id}
                     product={product}

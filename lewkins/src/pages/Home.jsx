@@ -1,50 +1,82 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
+import { getProductsFromAPI } from "../services/api";
 
 export default function Home() {
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Classic White T-Shirt",
-      price: 55000,
-      category: "T-Shirts",
-      image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg",
-      description: "A comfortable and stylish white t-shirt made from 100% cotton.",
-      colors: ["White", "Black", "Gray"],
-      sizes: ["XS", "S", "M", "L", "XL"]
-    },
-    {
-      id: 2,
-      name: "Denim Jacket",
-      price: 128000,
-      category: "Jackets",
-      image: "https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg",
-      description: "A trendy denim jacket perfect for casual outings.",
-      colors: ["Blue", "Black"],
-      sizes: ["S", "M", "L", "XL"]
-    },
-    {
-      id: 3,
-      name: "Summer Dress",
-      price: 230000,
-      category: "Dresses",
-      image: "https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg",
-      description: "A beautiful summer dress for warm weather.",
-      colors: ["Red", "Blue", "Yellow"],
-      sizes: ["XS", "S", "M", "L"]
-    },
-    {
-      id: 4,
-      name: "Casual Jeans",
-      price: 70000,
-      category: "Jeans",
-      image: "https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg",
-      description: "Comfortable casual jeans for everyday wear.",
-      colors: ["Blue", "Black"],
-      sizes: ["28", "30", "32", "34", "36"]
-    },
-  ];
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await getProductsFromAPI();
+        console.log('API Response:', response);
+        const products = response.datas || response;
+        console.log('Products extracted:', products);
+        
+        // Ensure products is an array
+        if (Array.isArray(products)) {
+          // Take first 4 products as featured
+          const featured = products.slice(0, 4);
+          console.log('Featured products:', featured);
+          setFeaturedProducts(featured);
+        } else {
+          console.warn('API response is not an array:', products);
+          throw new Error('Invalid API response format');
+        }
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+        // Fallback to mock data if API fails
+        setFeaturedProducts([
+          {
+            id: 1,
+            name: "Classic White T-Shirt",
+            price: 55000,
+            category: "T-Shirts",
+            image: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg",
+            description: "A comfortable and stylish white t-shirt made from 100% cotton.",
+            colors: ["White", "Black", "Gray"],
+            sizes: ["XS", "S", "M", "L", "XL"]
+          },
+          {
+            id: 2,
+            name: "Denim Jacket",
+            price: 128000,
+            category: "Jackets",
+            image: "https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg",
+            description: "A trendy denim jacket perfect for casual outings.",
+            colors: ["Blue", "Black"],
+            sizes: ["S", "M", "L", "XL"]
+          },
+          {
+            id: 3,
+            name: "Summer Dress",
+            price: 230000,
+            category: "Dresses",
+            image: "https://images.pexels.com/photos/985635/pexels-photo-985635.jpeg",
+            description: "A beautiful summer dress for warm weather.",
+            colors: ["Red", "Blue", "Yellow"],
+            sizes: ["XS", "S", "M", "L"]
+          },
+          {
+            id: 4,
+            name: "Casual Jeans",
+            price: 70000,
+            category: "Jeans",
+            image: "https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg",
+            description: "Comfortable casual jeans for everyday wear.",
+            colors: ["Blue", "Black"],
+            sizes: ["28", "30", "32", "34", "36"]
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -135,14 +167,31 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProducts.map((product, index) => (
-              <div
-                key={product.id}
-                className="transition-transform duration-300 transform hover:scale-105 hover:shadow-lg"
-              >
-                <ProductCard product={product} delay={index * 200} />
-              </div>
-            ))}
+            {loading ? (
+              // Loading skeleton
+              [...Array(4)].map((_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="aspect-square bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              ))
+            ) : (
+              Array.isArray(featuredProducts) && featuredProducts.length > 0 ? (
+                featuredProducts.map((product, index) => (
+                  <div
+                    key={product.id}
+                    className="transition-transform duration-300 transform hover:scale-105 hover:shadow-lg"
+                  >
+                    <ProductCard product={product} delay={index * 200} />
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <p className="text-gray-500">No featured products available</p>
+                </div>
+              )
+            )}
           </div>
         </div>
       </section>
