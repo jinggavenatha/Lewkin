@@ -4,21 +4,24 @@ import { useStore } from '../context/StoreContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { state, dispatch } = useStore();
+  const { state, auth } = useStore();
   const cartCount = state.cart.cartItems.length;
   const wishlistCount = state.wishlist.items.length;
-  const userInfo = state.userInfo;
+  const isAuthenticated = state.auth.isAuthenticated;
+  const user = state.auth.user;
+  const isAdmin = user?.role === 'admin';
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
-    dispatch({ type: 'USER_LOGOUT' });
+  const handleLogout = async () => {
+    await auth.logout();
+    setIsOpen(false); // Close mobile menu if open
   };
 
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="text-2xl font-bold text-black">
           Lewkin
@@ -29,7 +32,7 @@ export default function Navbar() {
           </NavLink>
           
           {/* Authenticated Area */}
-          {userInfo ? (
+          {isAuthenticated ? (
             <>
               <NavLink to="/shop" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Shop
@@ -46,15 +49,30 @@ export default function Navbar() {
               <NavLink to="/account" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Account
               </NavLink>
-              <NavLink to="/admin" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
-                Admin
-              </NavLink>
-              <button 
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-black"
-              >
-                Logout
-              </button>
+              
+              {/* Admin-only navigation */}
+              {isAdmin && (
+                <NavLink to="/admin" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
+                  Admin
+                </NavLink>
+              )}
+              
+              <div className="relative group">
+                <button className="text-gray-600 hover:text-black flex items-center">
+                  {user?.name || user?.email} ▼
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg hidden group-hover:block">
+                  <NavLink to="/account" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    Profile
+                  </NavLink>
+                  <button 
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
             </>
           ) : (
             /* Public Area */
@@ -89,8 +107,12 @@ export default function Navbar() {
             Home
           </NavLink>
           
-          {userInfo ? (
+          {isAuthenticated ? (
             <>
+              <div className="px-4 py-2 text-sm text-gray-500 border-b">
+                Welcome, {user?.name || user?.email}
+                {isAdmin && <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Admin</span>}
+              </div>
               <NavLink to="/shop" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                 Shop
               </NavLink>
@@ -106,23 +128,30 @@ export default function Navbar() {
               <NavLink to="/account" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                 Account
               </NavLink>
-              <NavLink to="/admin" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                Admin
-              </NavLink>
+              
+              {isAdmin && (
+                <NavLink to="/admin" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  Admin Dashboard
+                </NavLink>
+              )}
+              
               <button 
                 onClick={() => { handleLogout(); toggleMenu(); }}
-                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 border-t"
               >
                 Logout
               </button>
             </>
           ) : (
             <>
+              <NavLink to="/products" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                Products
+              </NavLink>
               <NavLink to="/login" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                Masuk
+                Login
               </NavLink>
               <NavLink to="/register" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                Daftar
+                Register
               </NavLink>
             </>
           )}

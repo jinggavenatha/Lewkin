@@ -1,8 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from auth import auth_bp, token_required, admin_required
 
 app = Flask(__name__)
 CORS(app)
+
+# Register auth blueprint
+app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
 # In-memory storage untuk products
 products = [
@@ -80,12 +84,12 @@ products = [
 
 next_id = 8  # Counter untuk ID baru
 
-# GET /api/products - Ambil semua products
+# GET /api/products - Ambil semua products (Public)
 @app.route('/api/products', methods=['GET'])
 def get_products():
     return jsonify(products)
 
-# GET /api/products/<id> - Ambil product by ID
+# GET /api/products/<id> - Ambil product by ID (Public)
 @app.route('/api/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     product = next((p for p in products if p['id'] == product_id), None)
@@ -93,9 +97,10 @@ def get_product(product_id):
         return jsonify(product)
     return jsonify({'error': 'Product not found'}), 404
 
-# POST /api/products - Tambah product baru
+# POST /api/products - Tambah product baru (Admin only)
 @app.route('/api/products', methods=['POST'])
-def create_product():
+@admin_required
+def create_product(current_user):
     global next_id
     data = request.get_json()
     
@@ -121,9 +126,10 @@ def create_product():
     
     return jsonify(new_product), 201
 
-# PUT /api/products/<id> - Update product
+# PUT /api/products/<id> - Update product (Admin only)
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
-def update_product(product_id):
+@admin_required
+def update_product(current_user, product_id):
     product = next((p for p in products if p['id'] == product_id), None)
     if not product:
         return jsonify({'error': 'Product not found'}), 404
@@ -148,9 +154,10 @@ def update_product(product_id):
     
     return jsonify(product)
 
-# DELETE /api/products/<id> - Hapus product
+# DELETE /api/products/<id> - Hapus product (Admin only)
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
-def delete_product(product_id):
+@admin_required
+def delete_product(current_user, product_id):
     global products
     product = next((p for p in products if p['id'] == product_id), None)
     if not product:
@@ -169,8 +176,23 @@ if __name__ == '__main__':
     print("📡 API endpoints:")
     print("   GET    /api/products")
     print("   GET    /api/products/<id>")
-    print("   POST   /api/products")
-    print("   PUT    /api/products/<id>")
-    print("   DELETE /api/products/<id>")
+    print("   POST   /api/products (Admin only)")
+    print("   PUT    /api/products/<id> (Admin only)")
+    print("   DELETE /api/products/<id> (Admin only)")
     print("   GET    /api/health")
+    print("")
+    print("🔐 Auth endpoints:")
+    print("   POST   /api/auth/register")
+    print("   POST   /api/auth/login")
+    print("   GET    /api/auth/profile (Auth required)")
+    print("   PUT    /api/auth/profile (Auth required)")
+    print("   PUT    /api/auth/change-password (Auth required)")
+    print("   GET    /api/auth/users (Admin only)")
+    print("   PUT    /api/auth/users/<id>/role (Admin only)")
+    print("   DELETE /api/auth/users/<id> (Admin only)")
+    print("   POST   /api/auth/verify-token")
+    print("")
+    print("👤 Default users:")
+    print("   Admin: admin@lewkins.com / admin123")
+    print("   User:  user@example.com / user123")
     app.run(debug=True, host='127.0.0.1', port=5001) 
