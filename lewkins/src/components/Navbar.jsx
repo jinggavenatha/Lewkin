@@ -34,9 +34,6 @@ export default function Navbar() {
           {/* Authenticated Area */}
           {isAuthenticated ? (
             <>
-              <NavLink to="/shop" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
-                Shop
-              </NavLink>
               <NavLink to="/products" className={({ isActive }) => isActive ? 'text-black font-medium' : 'text-gray-600 hover:text-black'}>
                 Products
               </NavLink>
@@ -113,9 +110,6 @@ export default function Navbar() {
                 Welcome, {user?.name || user?.email}
                 {isAdmin && <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Admin</span>}
               </div>
-              <NavLink to="/shop" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                Shop
-              </NavLink>
               <NavLink to="/products" onClick={toggleMenu} className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                 Products
               </NavLink>
