@@ -116,7 +116,7 @@ export default function ProductPreview() {
             <div className="mb-6">
               <h1 className="text-4xl font-bold text-black mb-4">{product.name}</h1>
               <div className="flex items-center mb-4">
-                <span className="text-3xl font-semibold text-black">${product.price.toFixed(2)}</span>
+                <span className="text-3xl font-semibold text-black">Rp {product.price.toLocaleString('id-ID')}</span>
                 <span className="ml-3 text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
                   ID: {product.id}
                 </span>
@@ -173,7 +173,7 @@ export default function ProductPreview() {
                 </div>
                 <div>
                   <span className="text-gray-500">Price:</span>
-                  <span className="ml-2 font-medium">${product.price.toFixed(2)}</span>
+                  <span className="ml-2 font-medium">Rp {product.price.toLocaleString('id-ID')}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">Status:</span>

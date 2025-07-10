@@ -91,7 +91,7 @@ export default function ProductDetail() {
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-2xl font-semibold text-gray-900 mb-4">${product.price.toFixed(2)}</p>
+            <p className="text-2xl font-semibold text-gray-900 mb-4">Rp {product.price.toLocaleString('id-ID')}</p>
             {product.category && (
               <span className="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
                 {product.category}

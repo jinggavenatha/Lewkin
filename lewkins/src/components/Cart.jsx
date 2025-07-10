@@ -44,10 +44,10 @@ export default function Cart() {
                 <Link to={`/products/${item.id}`} className="text-lg font-semibold text-black hover:text-gray-700 transition-colors">
                   {item.name}
                 </Link>
-                <p className="text-gray-600">Price: ${item.price.toFixed(2)}</p>
+                <p className="text-gray-600">Price: Rp {item.price.toLocaleString('id-ID')}</p>
                 {item.size && <p className="text-gray-600">Size: {item.size}</p>}
                 {item.color && <p className="text-gray-600">Color: {item.color}</p>}
-                <p className="text-sm text-gray-500">Subtotal: ${(item.price * item.quantity).toFixed(2)}</p>
+                <p className="text-sm text-gray-500">Subtotal: Rp {(item.price * item.quantity).toLocaleString('id-ID')}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <button
@@ -82,7 +82,7 @@ export default function Cart() {
             </div>
           ))}
           <div className="text-right font-semibold text-lg border-t pt-4">
-            Total: ${totalPrice.toFixed(2)}
+            Total: Rp {totalPrice.toLocaleString('id-ID')}
           </div>
           <div className="text-right">
             <Link to="/checkout" className="bg-black text-white px-6 py-3 rounded font-semibold hover:bg-gray-800 transition-colors inline-block">

@@ -49,7 +49,7 @@ export default function ProductCard({ product, delay = 0 }) {
           
           <Link to={`/products/${product.id}`} className="block mb-4">
             <div className="flex justify-between items-center hover:bg-gray-50 p-2 -m-2 rounded transition-colors duration-200">
-              <span className="text-2xl font-bold">${product.price}</span>
+              <span className="text-2xl font-bold">Rp {product.price.toLocaleString('id-ID')}</span>
               <span className="text-sm text-gray-500">{product.category}</span>
             </div>
           </Link>

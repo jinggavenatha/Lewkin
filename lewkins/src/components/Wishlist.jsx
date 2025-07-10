@@ -26,7 +26,7 @@ export default function Wishlist() {
                 <Link to={`/products/${item.id}`} className="text-lg font-semibold text-black">
                   {item.name}
                 </Link>
-                <p className="text-gray-600">Price: ${item.price.toFixed(2)}</p>
+                <p className="text-gray-600">Price: Rp {item.price.toLocaleString('id-ID')}</p>
               </div>
               <button
                 onClick={() => removeFromWishlist(item)}

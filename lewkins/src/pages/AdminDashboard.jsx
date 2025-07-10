@@ -182,7 +182,7 @@ export default function AdminDashboard() {
             {products.map((product) => (
               <tr key={product.id}>
                 <td className="border border-gray-300 p-2">{product.name}</td>
-                <td className="border border-gray-300 p-2">${product.price.toFixed(2)}</td>
+                <td className="border border-gray-300 p-2">Rp {product.price.toLocaleString('id-ID')}</td>
                 <td className="border border-gray-300 p-2">{product.category}</td>
                 <td className="border border-gray-300 p-2">
                   <div className="flex flex-wrap gap-2">
