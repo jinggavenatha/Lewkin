@@ -23,10 +23,10 @@ export default function Home() {
           {/* Overlay Text */}
           <div className="absolute bottom-20 left-8 text-white z-10">
             <div className="text-lg md:text-xl font-medium tracking-wider uppercase opacity-90 mb-2">
-              KOLEKSI WANITA
+              WOMEN COLLECTIONS
             </div>
             <div className="text-6xl md:text-8xl font-bold tracking-tight">
-              TERBARU
+              NEWEST
             </div>
           </div>
         </section>
@@ -50,7 +50,7 @@ export default function Home() {
               TRENDY
             </div>
             <div className="text-6xl md:text-8xl font-bold tracking-tight">
-              WANITA
+              WOMEN COLLECTIONS
             </div>
           </div>
         </section>
@@ -74,7 +74,7 @@ export default function Home() {
               TRENDY
             </div>
             <div className="text-6xl md:text-8xl font-bold tracking-tight">
-              PRIA
+              BOYS COLLECTIONS
             </div>
           </div>
         </section>
