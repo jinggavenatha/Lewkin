@@ -270,3 +270,67 @@ export function isAdmin() {
   const user = getCurrentUser();
   return user && user.role === 'admin';
 }
+
+// =============== ORDER ENDPOINTS ===============
+
+export async function createOrder(orderData) {
+  try {
+    return await apiRequest('/orders/', {
+      method: 'POST',
+      body: JSON.stringify(orderData)
+    });
+  } catch (error) {
+    console.error('Error in createOrder:', error);
+    throw error;
+  }
+}
+
+export async function getOrders() {
+  try {
+    return await apiRequest('/orders/');
+  } catch (error) {
+    console.error('Error in getOrders:', error);
+    throw error;
+  }
+}
+
+export async function getOrderById(orderId) {
+  try {
+    return await apiRequest(`/orders/${orderId}`);
+  } catch (error) {
+    console.error('Error in getOrderById:', error);
+    throw error;
+  }
+}
+
+export async function updateOrderStatus(orderId, statusData) {
+  try {
+    return await apiRequest(`/orders/${orderId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify(statusData)
+    });
+  } catch (error) {
+    console.error('Error in updateOrderStatus:', error);
+    throw error;
+  }
+}
+
+export async function getOrderStats() {
+  try {
+    return await apiRequest('/orders/stats');
+  } catch (error) {
+    console.error('Error in getOrderStats:', error);
+    throw error;
+  }
+}
+
+export async function cancelOrder(orderId) {
+  try {
+    return await apiRequest(`/orders/${orderId}`, {
+      method: 'DELETE'
+    });
+  } catch (error) {
+    console.error('Error in cancelOrder:', error);
+    throw error;
+  }
+}

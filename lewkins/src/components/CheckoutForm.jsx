@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
+import { createOrder } from '../services/api';
 
 export default function CheckoutForm() {
   const { state, dispatch } = useStore();
@@ -19,6 +20,7 @@ export default function CheckoutForm() {
     cardName: '',
     bankAccount: '',
     ewalletPhone: '',
+    customerNotes: '',
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -32,20 +34,67 @@ export default function CheckoutForm() {
     e.preventDefault();
     setIsProcessing(true);
 
-    // Simulate payment processing
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Siapkan data order
+      const orderData = {
+        shipping_info: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          province: formData.province,
+          zipCode: formData.zipCode
+        },
+        payment_info: {
+          paymentMethod: formData.paymentMethod,
+          // Include payment details based on method (you might want to handle this more securely)
+          ...(formData.paymentMethod === 'credit-card' && {
+            cardName: formData.cardName,
+            cardNumber: formData.cardNumber.slice(-4), // Only last 4 digits for security
+            expiryDate: formData.expiryDate
+          }),
+          ...(formData.paymentMethod === 'bank-transfer' && {
+            bankAccount: formData.bankAccount
+          }),
+          ...(formData.paymentMethod === 'ewallet' && {
+            ewalletPhone: formData.ewalletPhone
+          })
+        },
+        items: state.cart.cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color
+        })),
+        shipping_cost: shippingCost,
+        tax_rate: 0.11,
+        customer_notes: formData.customerNotes
+      };
+
+      // Check if user is logged in (api service will handle token automatically)
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        alert('Anda harus login terlebih dahulu');
+        window.location.href = '/login';
+        return;
+      }
+
+      // Send order to backend using API service
+      const result = await createOrder(orderData);
       
-      // Clear cart after successful payment
+      // Clear cart after successful order
       dispatch({ type: 'CART_CLEAR' });
       setOrderSuccess(true);
       
-      // Generate order ID
-      const orderId = 'LWK' + Date.now().toString().slice(-8);
-      console.log('Order placed successfully:', { orderId, ...formData });
+      console.log('Order placed successfully:', result);
       
     } catch (error) {
-      alert('Pembayaran gagal. Silakan coba lagi.');
+      console.error('Order error:', error);
+      alert(`Pembayaran gagal: ${error.message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -327,6 +376,22 @@ export default function CheckoutForm() {
                     </span>
                   </label>
                 </div>
+              </div>
+            </div>
+
+            {/* Customer Notes */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <h3 className="text-xl font-semibold mb-4">Catatan Tambahan</h3>
+              <div>
+                <label className="block font-medium mb-2">Catatan untuk Penjual (Opsional)</label>
+                <textarea
+                  name="customerNotes"
+                  value={formData.customerNotes}
+                  onChange={handleInputChange}
+                  className="input-field w-full"
+                  rows="3"
+                  placeholder="Contoh: Kirim saat saya di rumah, atau warna khusus yang diinginkan..."
+                />
               </div>
             </div>
 

@@ -1,12 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from auth import auth_bp, token_required, admin_required
+from order import order_bp
 
 app = Flask(__name__)
 CORS(app)
 
-# Register auth blueprint
+# Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
+app.register_blueprint(order_bp, url_prefix='/api/orders')
 
 # In-memory storage untuk products
 products = [
@@ -191,6 +193,14 @@ if __name__ == '__main__':
     print("   PUT    /api/auth/users/<id>/role (Admin only)")
     print("   DELETE /api/auth/users/<id> (Admin only)")
     print("   POST   /api/auth/verify-token")
+    print("")
+    print("📦 Order endpoints:")
+    print("   POST   /api/orders/ (Auth required)")
+    print("   GET    /api/orders/ (Auth required)")
+    print("   GET    /api/orders/<id> (Auth required)")
+    print("   PUT    /api/orders/<id>/status (Admin only)")
+    print("   GET    /api/orders/stats (Admin only)")
+    print("   DELETE /api/orders/<id> (Auth required)")
     print("")
     print("👤 Default users:")
     print("   Admin: admin@lewkins.com / admin123")
